@@ -1,4 +1,4 @@
-# Render blueprint: despliega la app como Web Service con Docker + disco persistente.
+# Render blueprint: despliega la app como Web Service con Docker.
 # Uso: conecta el repo en Render (Blueprint) y crea el servicio.
 services:
   - type: web
@@ -12,22 +12,19 @@ services:
         value: production
       - key: JWT_SECRET
         generateValue: true
-      # Para SQLite (recomendado en el plan free, con disco persistente):
+      # SQLite (plan free): sin disco persistente el archivo se pierde en cada
+      # redeploy, así que solo sirve para pruebas. Para datos durables usa
+      # PostgreSQL (ver abajo).
       - key: DB_DRIVER
         value: sqlite
       - key: DATABASE_URL
-        value: /data/mapa-sticker.db
-      # Para migrar a PostgreSQL (Supabase / Neon), comenta las dos de arriba y usa:
+        value: ./data/mapa-sticker.db
+      # Para datos durables (recomendado): PostgreSQL gratuito de Supabase/Neon.
+      # Comenta las dos de arriba y usa:
       # - key: DB_DRIVER
       #   value: postgres
       # - key: DATABASE_URL
-      #   fromDatabase:
-      #     name: mapa-sticker-db
-      #     property: connectionString
-    disk:
-      name: sqlite-data
-      mountPath: /data
-      sizeGB: 1
+      #   value: postgresql://usuario:password@host.supabase.co:5432/postgres
 
 # databases:
 #   - name: mapa-sticker-db

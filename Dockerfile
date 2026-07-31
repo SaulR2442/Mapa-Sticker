@@ -17,11 +17,8 @@ COPY . .
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV DB_DRIVER=sqlite
-ENV DATABASE_URL=/data/mapa-sticker.db
+ENV DATABASE_URL=./data/mapa-sticker.db
 
 EXPOSE 3000
-
-# /data es el volumen para la base SQLite (montado por Render/Railway)
-VOLUME ["/data"]
 
 CMD ["node", "src/server.js"]
