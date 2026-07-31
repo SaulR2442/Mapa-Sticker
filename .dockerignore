@@ -1,0 +1,8 @@
+node_modules
+data
+.env
+.git
+.gitignore
+public/uploads/stickers
+public/uploads/avatars
+npm-debug.log*

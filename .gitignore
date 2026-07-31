@@ -1,0 +1,8 @@
+node_modules/
+.env
+data/
+public/uploads/stickers/*
+public/uploads/avatars/*
+!public/uploads/stickers/.gitkeep
+!public/uploads/avatars/.gitkeep
+npm-debug.log*
