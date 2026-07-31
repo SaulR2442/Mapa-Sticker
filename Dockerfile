@@ -10,7 +10,7 @@ RUN apt-get update \
 
 # Instalar dependencias de producción (con lockfile para builds reproducibles)
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm install --omit=dev
 
 COPY . .
 
