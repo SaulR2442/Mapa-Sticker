@@ -22,10 +22,10 @@ export function renderShell() {
 function shellHTML() {
   return `
   <div class="h-screen flex flex-col">
-    <header class="h-14 shrink-0 flex items-center gap-3 px-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm z-10">
+    <header class="app-header h-14 shrink-0 flex items-center gap-3 px-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm z-10">
       <div class="text-2xl">🗺️📌</div>
       <h1 class="font-black text-lg tracking-tight hidden sm:block">Mapa<span class="text-indigo-500">Sticker</span></h1>
-      <button id="btn-upload" class="ml-2 hidden lg:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-sm font-bold shadow-lg shadow-indigo-600/25 transition">
+      <button id="btn-upload" class="ml-2 hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-sm font-bold shadow-lg shadow-indigo-600/25 transition">
         📌 Subir sticker
       </button>
       <div class="ml-auto flex items-center gap-2">
@@ -46,13 +46,13 @@ function shellHTML() {
     </header>
 
     <div class="flex flex-1 min-h-0">
-      <aside id="sidebar" class="fixed inset-y-0 left-0 z-[1000] w-72 -translate-x-full lg:translate-x-0 lg:static lg:z-auto transition-transform duration-200 bg-slate-100 dark:bg-slate-950 overflow-hidden">
+      <aside id="sidebar" class="fixed inset-y-0 left-0 z-[1000] w-72 md:w-64 lg:w-72 -translate-x-full md:translate-x-0 md:static md:z-auto transition-transform duration-200 bg-slate-100 dark:bg-slate-950 overflow-hidden">
         <div class="flex flex-col h-full gap-4 p-4 overflow-y-auto">
-          <div class="lg:hidden flex items-center justify-between">
+          <div class="md:hidden flex items-center justify-between">
             <span class="font-black">Filtros y opciones</span>
             <button id="sidebar-close" class="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700">✕</button>
           </div>
-          <button id="btn-upload-mobile" class="lg:hidden py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-bold">📌 Subir sticker</button>
+          <button id="btn-upload-mobile" class="md:hidden py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-bold">📌 Subir sticker</button>
 
           <div>
             <h3 class="text-[11px] uppercase tracking-wider font-bold opacity-50 mb-2">Vista del mapa</h3>
@@ -97,15 +97,15 @@ function shellHTML() {
           </div>
         </div>
       </aside>
-      <div id="sidebar-backdrop" class="fixed inset-0 bg-black/50 z-[950] hidden lg:hidden"></div>
+      <div id="sidebar-backdrop" class="fixed inset-0 bg-black/50 z-[950] hidden md:hidden"></div>
 
       <main class="relative flex-1 min-w-0">
         <div id="map-container" class="absolute inset-0"></div>
-        <button id="btn-sidebar-mobile" class="lg:hidden absolute bottom-5 left-4 z-[500] flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 shadow-lg text-sm font-bold border border-slate-200 dark:border-slate-700">
+        <button id="btn-sidebar-mobile" class="app-filters-btn md:hidden absolute bottom-5 left-4 z-[500] flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 shadow-lg text-sm font-bold border border-slate-200 dark:border-slate-700">
           ⚙️ Filtros
         </button>
         <button id="btn-fab" title="Subir sticker"
-          class="lg:hidden absolute bottom-5 right-4 z-[500] w-14 h-14 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-2xl shadow-xl shadow-indigo-600/40 flex items-center justify-center active:scale-90 transition">📌</button>
+          class="app-fab md:hidden absolute bottom-5 right-4 z-[500] w-14 h-14 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-2xl shadow-xl shadow-indigo-600/40 flex items-center justify-center active:scale-90 transition">📌</button>
       </main>
     </div>
   </div>`;
@@ -734,7 +734,7 @@ function rowBase(u) {
 }
 
 function incomingRow(u) {
-  return `<div class="flex items-center gap-3 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60">
+  return `<div class="flex flex-wrap items-center gap-3 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60">
     ${rowBase(u)}
     <button data-accept="${u.id}" class="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white transition">Aceptar</button>
     <button data-reject="${u.id}" class="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-500 border border-rose-300 dark:border-rose-800 hover:bg-rose-500 hover:text-white transition">Rechazar</button>
@@ -742,7 +742,7 @@ function incomingRow(u) {
 }
 
 function outgoingRow(u) {
-  return `<div class="flex items-center gap-3 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60">
+  return `<div class="flex flex-wrap items-center gap-3 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60">
     ${rowBase(u)}
     <span class="text-[10px] font-bold uppercase tracking-wide bg-amber-500/15 text-amber-600 dark:text-amber-400 px-2 py-1 rounded-lg">Pendiente</span>
     <button data-cancel="${u.id}" class="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 transition">Cancelar</button>
@@ -750,7 +750,7 @@ function outgoingRow(u) {
 }
 
 function acceptedRow(u) {
-  return `<div class="flex items-center gap-3 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60">
+  return `<div class="flex flex-wrap items-center gap-3 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60">
     ${rowBase(u)}
     <button data-view-friend="${escapeHtml(u.username)}" class="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white transition">Ver mapa</button>
     <button data-unfriend="${u.id}" class="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-500 border border-rose-300 dark:border-rose-800 hover:bg-rose-500 hover:text-white transition">✕</button>
@@ -764,7 +764,7 @@ function searchRow(u) {
     pending_in: `<button data-accept="${u.friend_id}" class="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white transition">Aceptar</button>`,
     none: `<button data-request="${escapeHtml(u.username)}" class="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white transition">➕ Agregar</button>`,
   }[u.friend_status] || '';
-  return `<div class="flex items-center gap-3 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60">
+  return `<div class="flex flex-wrap items-center gap-3 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60">
     ${rowBase(u)}${badge}
   </div>`;
 }

@@ -125,3 +125,33 @@ body { transition: background-color 0.25s ease, color 0.25s ease; }
   transition: background-color 0.15s ease;
 }
 .menu-item:hover { background: rgba(100, 116, 139, 0.12); }
+
+/* ===== Responsive: viewport dinámico y safe-areas ===== */
+/* 100dvh evita que la barra del navegador móvil corte el layout (100vh clásico) */
+.h-screen { height: 100vh; height: 100dvh; }
+.min-h-screen { min-height: 100vh; min-height: 100dvh; }
+.max-h-\[92vh\] { max-height: 92vh; max-height: 92dvh; }
+
+/* iPhone con notch / home indicator: evita que los controles queden ocultos */
+.app-header {
+  min-height: calc(3.5rem + env(safe-area-inset-top));
+  padding-top: env(safe-area-inset-top);
+}
+.app-fab,
+.app-filters-btn {
+  bottom: calc(1.25rem + env(safe-area-inset-bottom));
+}
+#toast-root {
+  top: calc(1rem + env(safe-area-inset-top));
+}
+
+/* En móviles la atribución de Leaflet choca con el FAB inferior */
+@media (max-width: 767px) {
+  .leaflet-control-attribution { display: none; }
+}
+
+/* En pantallas pequeñas el popup se acomoda sin desbordar */
+@media (max-width: 420px) {
+  .ms-popup { width: 200px; }
+  .ms-popup img.ms-popup-img { height: 110px; }
+}
