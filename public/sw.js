@@ -1,19 +1,21 @@
 // Service Worker de Mapa Sticker (PWA básica)
-// Estrategia:
-//  - CDN (Leaflet, Tailwind, exifr): cache-first para funcionar offline
+// Todos los recursos son propios (autohospedados, sin CDN):
+//  - Instalación: precache del shell + estilos + vendor
 //  - /api/*: siempre red (nunca cachear datos)
 //  - Estáticos propios: network-first con respaldo en caché
-const CACHE = 'ms-cache-v1';
-const CDN_ASSETS = [
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
-  'https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/full.umd.js',
-  'https://cdn.tailwindcss.com',
+const CACHE = 'ms-cache-v2';
+const PRECACHE_ASSETS = [
+  '/index.html',
+  '/css/style.css',
+  '/vendor/tailwind.js',
+  '/vendor/leaflet/leaflet.css',
+  '/vendor/leaflet/leaflet.js',
+  '/vendor/exifr.js',
 ];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open(CACHE).then((c) => c.addAll(CDN_ASSETS)).catch(() => {})
+    caches.open(CACHE).then((c) => c.addAll(PRECACHE_ASSETS)).catch(() => {})
   );
   self.skipWaiting();
 });
@@ -26,17 +28,6 @@ self.addEventListener('activate', (e) => {
   );
   self.clients.claim();
 });
-
-async function cacheFirst(req) {
-  const cached = await caches.match(req);
-  if (cached) return cached;
-  const res = await fetch(req);
-  if (res.ok) {
-    const copy = res.clone();
-    caches.open(CACHE).then((c) => c.put(req, copy));
-  }
-  return res;
-}
 
 async function networkFirst(req, fallbackUrl) {
   try {
@@ -62,14 +53,6 @@ self.addEventListener('fetch', (e) => {
 
   // API: solo red
   if (url.pathname.startsWith('/api/')) return;
-
-  // CDN: cache-first
-  if (url.origin !== self.location.origin) {
-    if (CDN_ASSETS.includes(request.url)) {
-      e.respondWith(cacheFirst(request));
-    }
-    return;
-  }
 
   // Navegación: network-first con fallback al shell
   if (request.mode === 'navigate') {

@@ -10,13 +10,14 @@
   <link rel="apple-touch-icon" href="/icons/icon-192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Recursos autohospedados: sin dependencias de CDN externas (bloqueos/CSP/redes) -->
+  <script src="/vendor/tailwind.js"></script>
   <script>
     tailwind.config = { darkMode: 'class' };
   </script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/full.umd.js"></script>
+  <link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
+  <script src="/vendor/leaflet/leaflet.js"></script>
+  <script src="/vendor/exifr.js"></script>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased">
