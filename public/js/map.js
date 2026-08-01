@@ -196,7 +196,7 @@ export function redraw() {
     hintEl.onAdd = () => {
       const div = L.DomUtil.create('div', '');
       div.id = 'map-hint';
-      div.style.cssText = 'background:rgba(15,23,42,.85);color:#fff;padding:10px 14px;border-radius:12px;font-size:13px;display:none;max-width:240px;';
+      div.style.cssText = 'background:rgba(15,23,42,.85);color:#fff;padding:.625rem .875rem;border-radius:.75rem;font-size:.8125rem;display:none;max-width:15rem;';
       return div;
     };
     hintEl.addTo(map);

@@ -23,15 +23,16 @@ function shellHTML() {
   return `
   <div class="h-screen flex flex-col">
     <header class="app-header h-14 shrink-0 flex items-center gap-3 px-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm z-10">
+      <button id="btn-hamburger" aria-label="Abrir menú de filtros" class="md:hidden w-11 h-11 shrink-0 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-xl">☰</button>
       <div class="text-2xl">🗺️📌</div>
       <h1 class="font-black text-lg tracking-tight hidden sm:block">Mapa<span class="text-indigo-500">Sticker</span></h1>
       <button id="btn-upload" class="ml-2 hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-sm font-bold shadow-lg shadow-indigo-600/25 transition">
         📌 Subir sticker
       </button>
       <div class="ml-auto flex items-center gap-2">
-        <button id="btn-theme" title="Cambiar tema" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-lg">🌙</button>
+        <button id="btn-theme" title="Cambiar tema" class="w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-lg">🌙</button>
         <div class="relative">
-          <button id="btn-menu" class="w-10 h-10 rounded-full hover:opacity-90 transition"></button>
+          <button id="btn-menu" class="w-11 h-11 rounded-full hover:opacity-90 transition"></button>
           <div id="user-menu" class="hidden absolute right-0 top-12 w-60 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl overflow-hidden text-sm z-[1200]">
             <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
               <p id="menu-name" class="font-bold truncate"></p>
@@ -50,30 +51,30 @@ function shellHTML() {
         <div class="flex flex-col h-full gap-4 p-4 overflow-y-auto">
           <div class="md:hidden flex items-center justify-between">
             <span class="font-black">Filtros y opciones</span>
-            <button id="sidebar-close" class="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700">✕</button>
+            <button id="sidebar-close" aria-label="Cerrar menú" class="w-11 h-11 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700">✕</button>
           </div>
-          <button id="btn-upload-mobile" class="md:hidden py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-bold">📌 Subir sticker</button>
+          <button id="btn-upload-mobile" class="md:hidden py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-bold">📌 Subir sticker</button>
 
           <div>
             <h3 class="text-[11px] uppercase tracking-wider font-bold opacity-50 mb-2">Vista del mapa</h3>
             <div id="view-mode" class="grid grid-cols-3 gap-1 bg-slate-200 dark:bg-slate-800 rounded-xl p-1 text-xs font-semibold">
-              <button data-mode="mine" class="mode-btn rounded-lg py-2 transition">Mi Mapa</button>
-              <button data-mode="friend" class="mode-btn rounded-lg py-2 transition">Amigo</button>
-              <button data-mode="global" class="mode-btn rounded-lg py-2 transition">Global</button>
+              <button data-mode="mine" class="mode-btn rounded-lg py-3 transition">Mi Mapa</button>
+              <button data-mode="friend" class="mode-btn rounded-lg py-3 transition">Amigo</button>
+              <button data-mode="global" class="mode-btn rounded-lg py-3 transition">Global</button>
             </div>
             <div id="friend-picker" class="hidden mt-2">
-              <select id="friend-select" class="w-full text-sm px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
+              <select id="friend-select" class="w-full text-sm px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
             </div>
           </div>
 
           <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm">
             <div class="flex items-center justify-between mb-3">
               <h3 class="text-[11px] uppercase tracking-wider font-bold opacity-50">Filtros</h3>
-              <button id="cat-all" class="text-[10px] font-bold text-indigo-500 hover:text-indigo-400 transition">Ver todas</button>
+              <button id="cat-all" class="text-xs font-bold text-indigo-500 hover:text-indigo-400 transition px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">Ver todas</button>
             </div>
-            <div id="cat-filters" class="space-y-1.5"></div>
+            <div id="cat-filters" class="space-y-2"></div>
             <input id="tag-filter" placeholder="🔍 Etiqueta (ej. graffiti)"
-              class="mt-3 w-full text-sm px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder:opacity-50">
+              class="mt-3 w-full text-sm px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder:opacity-50">
             <label class="flex items-center gap-2 mt-3 text-xs font-medium cursor-pointer">
               <input id="routes-toggle" type="checkbox" checked class="accent-cyan-500 w-4 h-4">
               Trazar ruta del recorrido
@@ -83,7 +84,7 @@ function shellHTML() {
           <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm">
             <h3 class="text-[11px] uppercase tracking-wider font-bold opacity-50 mb-3">Amigos</h3>
             <ul id="friend-list" class="space-y-1 text-sm max-h-44 overflow-y-auto"></ul>
-            <button id="btn-friends" class="mt-3 w-full text-xs font-bold py-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition">👥 Gestionar amigos</button>
+            <button id="btn-friends" class="mt-3 w-full text-xs font-bold py-3 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition">👥 Gestionar amigos</button>
           </div>
 
           <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm">
@@ -101,10 +102,7 @@ function shellHTML() {
 
       <main class="relative flex-1 min-w-0">
         <div id="map-container" class="absolute inset-0"></div>
-        <button id="btn-sidebar-mobile" class="app-filters-btn md:hidden absolute bottom-5 left-4 z-[500] flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 shadow-lg text-sm font-bold border border-slate-200 dark:border-slate-700">
-          ⚙️ Filtros
-        </button>
-        <button id="btn-fab" title="Subir sticker"
+        <button id="btn-fab" aria-label="Subir sticker" title="Subir sticker"
           class="app-fab md:hidden absolute bottom-5 right-4 z-[500] w-14 h-14 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-2xl shadow-xl shadow-indigo-600/40 flex items-center justify-center active:scale-90 transition">📌</button>
       </main>
     </div>
@@ -182,8 +180,13 @@ function wireShell() {
   document.getElementById('btn-upload-mobile').addEventListener('click', onUpload);
   document.getElementById('btn-fab').addEventListener('click', onUpload);
 
-  // Sidebar móvil
-  document.getElementById('btn-sidebar-mobile').addEventListener('click', openSidebar);
+  // Sidebar móvil (hamburguesa en la navbar)
+  document.getElementById('btn-hamburger').addEventListener('click', () => {
+    const sidebar = document.getElementById('sidebar');
+    const isOpen = !sidebar.classList.contains('-translate-x-full');
+    if (isOpen) closeSidebar();
+    else openSidebar();
+  });
   document.getElementById('sidebar-close').addEventListener('click', closeSidebar);
   document.getElementById('sidebar-backdrop').addEventListener('click', closeSidebar);
 
@@ -288,8 +291,8 @@ function paintFriendList() {
   list.innerHTML = state.friends.length
     ? state.friends.map((f) => `
         <li>
-          <button data-view-friend="${escapeHtml(f.username)}" class="w-full flex items-center gap-2 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition text-left">
-            ${avatarHtml(f, 'w-7 h-7 text-[10px]')}
+          <button data-view-friend="${escapeHtml(f.username)}" class="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition text-left">
+            ${avatarHtml(f, 'w-8 h-8 text-[11px]')}
             <span class="truncate font-medium">${escapeHtml(f.display_name)}</span>
             <span class="opacity-50 text-xs">@${escapeHtml(f.username)}</span>
           </button>
@@ -407,7 +410,7 @@ function openModal({ title, content, onMount }) {
     <div class="relative w-full max-w-lg max-h-[92vh] overflow-y-auto bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700">
       <div class="sticky top-0 z-10 flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
         <h2 class="text-lg font-bold">${title}</h2>
-        <button data-close class="w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition">✕</button>
+        <button data-close aria-label="Cerrar" class="w-11 h-11 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition">✕</button>
       </div>
       <div class="p-5">${content}</div>
     </div>`;
@@ -736,8 +739,8 @@ function rowBase(u) {
 function incomingRow(u) {
   return `<div class="flex flex-wrap items-center gap-3 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60">
     ${rowBase(u)}
-    <button data-accept="${u.id}" class="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white transition">Aceptar</button>
-    <button data-reject="${u.id}" class="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-500 border border-rose-300 dark:border-rose-800 hover:bg-rose-500 hover:text-white transition">Rechazar</button>
+    <button data-accept="${u.id}" class="text-[11px] font-bold px-3 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white transition">Aceptar</button>
+    <button data-reject="${u.id}" class="text-[11px] font-bold px-3 py-2.5 rounded-lg bg-rose-500/10 text-rose-500 border border-rose-300 dark:border-rose-800 hover:bg-rose-500 hover:text-white transition">Rechazar</button>
   </div>`;
 }
 
@@ -745,15 +748,15 @@ function outgoingRow(u) {
   return `<div class="flex flex-wrap items-center gap-3 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60">
     ${rowBase(u)}
     <span class="text-[10px] font-bold uppercase tracking-wide bg-amber-500/15 text-amber-600 dark:text-amber-400 px-2 py-1 rounded-lg">Pendiente</span>
-    <button data-cancel="${u.id}" class="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 transition">Cancelar</button>
+    <button data-cancel="${u.id}" class="text-[11px] font-bold px-3 py-2.5 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 transition">Cancelar</button>
   </div>`;
 }
 
 function acceptedRow(u) {
   return `<div class="flex flex-wrap items-center gap-3 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60">
     ${rowBase(u)}
-    <button data-view-friend="${escapeHtml(u.username)}" class="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white transition">Ver mapa</button>
-    <button data-unfriend="${u.id}" class="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-500 border border-rose-300 dark:border-rose-800 hover:bg-rose-500 hover:text-white transition">✕</button>
+    <button data-view-friend="${escapeHtml(u.username)}" class="text-[11px] font-bold px-3 py-2.5 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white transition">Ver mapa</button>
+    <button data-unfriend="${u.id}" class="text-[11px] font-bold px-3 py-2.5 rounded-lg bg-rose-500/10 text-rose-500 border border-rose-300 dark:border-rose-800 hover:bg-rose-500 hover:text-white transition">✕</button>
   </div>`;
 }
 
@@ -761,8 +764,8 @@ function searchRow(u) {
   const badge = {
     accepted: '<span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">✓ Amigos</span>',
     pending_out: '<span class="text-[10px] font-bold text-amber-600 dark:text-amber-400">⏳ Enviada</span>',
-    pending_in: `<button data-accept="${u.friend_id}" class="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white transition">Aceptar</button>`,
-    none: `<button data-request="${escapeHtml(u.username)}" class="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white transition">➕ Agregar</button>`,
+    pending_in: `<button data-accept="${u.friend_id}" class="text-[11px] font-bold px-3 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white transition">Aceptar</button>`,
+    none: `<button data-request="${escapeHtml(u.username)}" class="text-[11px] font-bold px-3 py-2.5 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white transition">➕ Agregar</button>`,
   }[u.friend_status] || '';
   return `<div class="flex flex-wrap items-center gap-3 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60">
     ${rowBase(u)}${badge}
