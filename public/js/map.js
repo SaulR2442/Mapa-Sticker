@@ -9,8 +9,8 @@ const TILES = {
 };
 const ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>';
 
-export const MY_COLOR = '#06b6d4';
-export const FRIEND_COLORS = ['#f59e0b', '#a855f7', '#84cc16', '#fb7185', '#f97316', '#14b8a6', '#eab308', '#6366f1'];
+export const MY_COLOR = '#a855f7';
+export const FRIEND_COLORS = ['#f59e0b', '#a855f7', '#84cc16', '#fb7185', '#f97316', '#ec4899', '#eab308', '#c084fc'];
 
 let map = null;
 let tileLayer = null;
