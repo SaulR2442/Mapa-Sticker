@@ -10,6 +10,15 @@ const STICKER_COLUMNS = `
   EXISTS(SELECT 1 FROM likes l WHERE l.sticker_id = s.id AND l.user_id = $1) AS liked_by_me
 `;
 
+// tags se guarda como texto JSON: el cliente espera un array
+function parseTags(raw) {
+  try { return JSON.parse(raw || '[]'); } catch { return []; }
+}
+function normalize(row) {
+  if (!row) return null;
+  return { ...row, liked_by_me: !!row.liked_by_me, tags: parseTags(row.tags) };
+}
+
 const stickers = {
   async create({ userId, title, description, imageUrl, category, tags, lat, lng, takenAt }) {
     const { rows } = await pool.query(
@@ -27,7 +36,7 @@ const stickers = {
        WHERE s.id = $2`,
       [viewerId, id]
     );
-    return rows[0] || null;
+    return normalize(rows[0]);
   },
 
   async listByUser(userId, viewerId = null) {
@@ -38,7 +47,7 @@ const stickers = {
        ORDER BY s.taken_at IS NULL, s.taken_at DESC, s.created_at DESC`,
       [viewerId, userId]
     );
-    return rows;
+    return rows.map(normalize);
   },
 
   async listByUsernames(usernames, viewerId = null) {
@@ -51,7 +60,7 @@ const stickers = {
        ORDER BY s.created_at DESC`,
       [viewerId, ...usernames]
     );
-    return rows;
+    return rows.map(normalize);
   },
 
   // Puntos cronológicos (ordenados por fecha) para trazar la ruta del usuario

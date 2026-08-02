@@ -31,8 +31,9 @@ app.get('*', (req, res, next) => {
 
 // Error handler
 app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ error: 'Error interno del servidor' });
+  console.error(`[${new Date().toISOString()}]`, err);
+  if (res.headersSent) return next(err);
+  res.status(err.status || 500).json({ error: 'Error interno del servidor' });
 });
 
 const PORT = process.env.PORT || 3000;

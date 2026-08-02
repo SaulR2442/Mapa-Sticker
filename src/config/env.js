@@ -11,6 +11,7 @@ const env = {
   // 'sqlite' o 'postgres' (futuro: Supabase)
   DB_DRIVER: process.env.DB_DRIVER || 'sqlite',
   DATABASE_URL: process.env.DATABASE_URL || './data/mapa-sticker.db',
+  DB_SSL: process.env.DB_SSL === 'true', // Supabase/Render: conexión cifrada
   PUBLIC_DIR: path.resolve(process.cwd(), 'public'),
   UPLOAD_STICKERS_DIR: path.resolve(process.cwd(), 'public/uploads/stickers'),
   UPLOAD_AVATARS_DIR: path.resolve(process.cwd(), 'public/uploads/avatars'),

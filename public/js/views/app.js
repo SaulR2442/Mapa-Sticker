@@ -1,7 +1,7 @@
 // Vista principal: shell (topbar + sidebar + mapa) y modales (subida, perfil, amigos)
 import { state } from '../state.js';
 import { api } from '../api.js';
-import { CATEGORIES, categoryMeta, escapeHtml, avatarHtml, toast, debounce, plural, todayISO, compressImage, getCurrentLocation } from '../utils.js';
+import { CATEGORIES, categoryMeta, escapeHtml, avatarHtml, toast, debounce, plural, todayISO, compressImage, getCurrentLocation, playSlap, unlockAudio } from '../utils.js';
 import * as map from '../map.js';
 
 const { MY_COLOR, FRIEND_COLORS } = map;
@@ -18,6 +18,11 @@ export function renderShell() {
   wireShell();
   refreshFriends().then(loadScope);
 }
+
+// Desbloquea WebAudio con el primer gesto (requisito de autoplay para el slap)
+['pointerdown', 'keydown'].forEach((ev) =>
+  document.addEventListener(ev, unlockAudio, { once: true })
+);
 
 function shellHTML() {
   return `
@@ -401,6 +406,11 @@ export function closeModal() {
   modalClose();
 }
 
+// Cerrar modales con Escape (buena práctica móvil/escritorio)
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && currentModal) closeModal();
+});
+
 function openModal({ title, content, onMount }) {
   closeModal();
   const overlay = document.createElement('div');
@@ -547,10 +557,11 @@ function openUploadModal() {
 
         const btn = overlay.querySelector('#upload-submit');
         btn.disabled = true;
-        btn.textContent = 'Publicando…';
+        btn.textContent = 'Pegando…';
         try {
           await api.post('/stickers', fd);
-          toast('Sticker publicado 📌', 'ok');
+          playSlap();
+          toast('¡Sticker pegado! 📌', 'ok');
           closeModal();
           await loadScope();
         } catch (err) {

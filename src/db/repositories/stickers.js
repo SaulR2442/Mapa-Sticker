@@ -12,7 +12,12 @@ const STICKER_COLUMNS = `
 
 function normalize(row) {
   if (!row) return null;
-  return { ...row, liked_by_me: !!row.liked_by_me };
+  return { ...row, liked_by_me: !!row.liked_by_me, tags: parseTags(row.tags) };
+}
+
+// tags se guarda como texto JSON: el cliente espera un array
+function parseTags(raw) {
+  try { return JSON.parse(raw || '[]'); } catch { return []; }
 }
 
 const stickers = {

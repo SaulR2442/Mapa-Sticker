@@ -1,11 +1,13 @@
 // Módulo del mapa: Leaflet + tiles CartoDB (claro/oscuro) + markers/rutas
 import { api } from './api.js';
-import { categoryMeta, escapeHtml, formatDate, avatarHtml } from './utils.js';
+import { categoryMeta, escapeHtml, formatDate, timeAgo, avatarHtml, stickerImg, GRAFFITI_FALLBACK } from './utils.js';
 import { state } from './state.js';
 
 const TILES = {
+  // En modo oscuro las tiles claras se transforman a "neón" con un filtro CSS
+  // (invert + hue-rotate): calles oscuras con acentos brillantes estilo Spider-Verse
   light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-  dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+  dark: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
 };
 const ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>';
 
@@ -46,15 +48,19 @@ export function initMap(containerId, theme, onRefresh) {
         try {
           const res = await api.post(`/stickers/${btn.dataset.like}/like`, {});
           btn.dataset.liked = res.liked ? '1' : '0';
-          btn.classList.toggle('bg-rose-500/15', res.liked);
-          btn.classList.toggle('border-rose-400', res.liked);
-          btn.classList.toggle('dark:border-rose-700', res.liked);
-          btn.classList.toggle('text-rose-500', res.liked);
+          btn.classList.toggle('bg-violet-500/15', res.liked);
+          btn.classList.toggle('border-violet-400', res.liked);
+          btn.classList.toggle('dark:border-violet-500', res.liked);
+          btn.classList.toggle('text-violet-600', res.liked);
+          btn.classList.toggle('dark:text-violet-300', res.liked);
           btn.classList.toggle('border-slate-300', !res.liked);
           btn.classList.toggle('dark:border-slate-700', !res.liked);
           btn.classList.toggle('text-slate-500', !res.liked);
           btn.classList.toggle('dark:text-slate-400', !res.liked);
           btn.querySelector('.like-count').textContent = res.likes_count;
+          btn.classList.remove('bump');
+          void btn.offsetWidth; // reinicia la animación
+          btn.classList.add('bump');
         } catch (err) {
           toastSafe(err.message, 'error');
         }
@@ -108,13 +114,19 @@ export function currentTheme() {
 }
 
 // ---- Render ----
-function pinIcon(color, thumb) {
+// IDs ya renderizados: solo los stickers NUEVOS hacen pop-in + spray al pegarse
+const seenStickerIds = new Set();
+
+function pinIcon(thumb, animate = false) {
+  const anim = animate ? ' pop-in spray' : '';
   return L.divIcon({
-    className: 'sticker-pin-wrap',
-    html: `<div class="sticker-pin" style="--pin-color:${color}">${thumb ? `<img src="${escapeHtml(thumb)}" alt="">` : ''}</div>`,
-    iconSize: [42, 50],
-    iconAnchor: [21, 50],
-    popupAnchor: [0, -50],
+    className: 'custom-sticker-marker',
+    html: `<div class="sticker-pin${anim}">${thumb
+      ? `<img src="${escapeHtml(thumb)}" alt="" onerror="this.onerror=null;this.src='${GRAFFITI_FALLBACK}'">`
+      : ''}</div>`,
+    iconSize: [36, 44],
+    iconAnchor: [18, 44],
+    popupAnchor: [0, -44],
   });
 }
 
@@ -123,10 +135,13 @@ function popupContent(sticker, isMine) {
   const tags = (Array.isArray(sticker.tags) ? sticker.tags : []).map((t) => `<span class="tag-chip">#${escapeHtml(t)}</span>`).join('');
   return `
   <div class="ms-popup">
-    <img class="ms-popup-img" src="${escapeHtml(sticker.image_url)}" alt="${escapeHtml(sticker.title)}">
+    ${stickerImg(sticker, 'ms-popup-img')}
     <div class="mt-2 flex items-center gap-2">
       ${avatarHtml({ display_name: sticker.display_name, username: sticker.username, avatar: sticker.user_avatar }, 'w-6 h-6 text-[10px]')}
-      <span class="text-xs font-medium truncate">${escapeHtml(sticker.display_name)} <span class="opacity-60">@${escapeHtml(sticker.username)}</span></span>
+      <div class="min-w-0">
+        <span class="ms-tag block truncate">@${escapeHtml(sticker.username)}</span>
+        <span class="text-[10px] opacity-60 block">⏱ Pegado ${timeAgo(sticker.created_at || sticker.taken_at)}</span>
+      </div>
     </div>
     <div class="mt-1.5 flex items-start justify-between gap-2">
       <h4 class="font-bold leading-tight">${escapeHtml(sticker.title)}</h4>
@@ -136,8 +151,8 @@ function popupContent(sticker, isMine) {
     ${tags ? `<div class="mt-1.5">${tags}</div>` : ''}
     ${sticker.description ? `<p class="text-xs mt-1.5 opacity-80 leading-snug">${escapeHtml(sticker.description)}</p>` : ''}
     <div class="flex items-center gap-2 mt-2">
-      <button data-like="${sticker.id}" data-liked="${sticker.liked_by_me ? '1' : '0'}" class="like-btn flex-1 text-xs font-bold py-1.5 rounded-lg border transition ${sticker.liked_by_me ? 'bg-rose-500/15 border-rose-400 dark:border-rose-700 text-rose-500' : 'border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-rose-500/10'}">❤️ <span class="like-count">${sticker.likes_count || 0}</span></button>
-      ${isMine ? `<button data-del="${sticker.id}" class="flex-1 text-xs font-semibold py-1.5 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-300 dark:border-rose-800 hover:bg-rose-500 hover:text-white transition">🗑️ Eliminar</button>` : ''}
+      <button data-like="${sticker.id}" data-liked="${sticker.liked_by_me ? '1' : '0'}" class="like-btn flex-1 text-xs font-bold py-1.5 rounded-lg border transition ${sticker.liked_by_me ? 'bg-violet-500/15 border-violet-400 dark:border-violet-500 text-violet-600 dark:text-violet-300' : 'border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-violet-500/10'}">👊 <span class="like-count">${sticker.likes_count || 0}</span> Respeto</button>
+      ${isMine ? `<button data-del="${sticker.id}" class="flex-1 text-xs font-semibold py-1.5 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-300 dark:border-rose-800 hover:bg-rose-500 hover:text-white transition">🗑️ Quitar</button>` : ''}
     </div>
   </div>`;
 }
@@ -168,7 +183,16 @@ export function redraw() {
     const filtered = applyFilter(user.stickers || []);
     filtered.forEach((s) => {
       const isMine = s.user_id === state.user?.id;
-      const marker = L.marker([s.lat, s.lng], { icon: pinIcon(user.color, s.image_url) });
+      const isNew = !seenStickerIds.has(s.id);
+      seenStickerIds.add(s.id);
+      const marker = L.marker([s.lat, s.lng], { icon: pinIcon(s.image_url, isNew) });
+      if (isNew) {
+        // Limpia las clases de animación para no chocar con el anillo .selected
+        setTimeout(() => {
+          const pin = marker.getElement()?.querySelector('.sticker-pin');
+          if (pin) pin.classList.remove('pop-in', 'spray');
+        }, 800);
+      }
       marker.bindPopup(popupContent(s, isMine));
       marker.on('popupopen', () => marker.getElement()?.classList.add('selected'));
       marker.on('popupclose', () => marker.getElement()?.classList.remove('selected'));

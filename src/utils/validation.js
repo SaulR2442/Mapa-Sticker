@@ -1,11 +1,12 @@
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// IDs estables (no romper datos existentes) con etiquetas estilo barrio urbano
 const CATEGORIES = [
-  { id: 'arte', label: 'Arte Urbano', color: '#f43f5e' },
-  { id: 'marca', label: 'Marca / Branding', color: '#f59e0b' },
-  { id: 'viajes', label: 'Viajes / Turismo', color: '#3b82f6' },
-  { id: 'eventos', label: 'Eventos', color: '#a855f7' },
-  { id: 'personal', label: 'Personal', color: '#10b981' },
+  { id: 'arte', label: 'Arte Urbano', color: '#fb7185' },
+  { id: 'marca', label: 'Slaps', color: '#fbbf24' },
+  { id: 'viajes', label: 'Pop Culture', color: '#60a5fa' },
+  { id: 'eventos', label: 'Illegal Spot', color: '#c084fc' },
+  { id: 'personal', label: 'Frases', color: '#34d399' },
 ];
 
 const CATEGORY_IDS = CATEGORIES.map((c) => c.id);

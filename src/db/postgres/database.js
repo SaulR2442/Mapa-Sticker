@@ -1,10 +1,11 @@
 const { Pool } = require('pg');
-const { DATABASE_URL } = require('../../config/env');
+const { DATABASE_URL, DB_SSL } = require('../../config/env');
 
 const pool = new Pool({
   connectionString: DATABASE_URL,
   max: 10,
   idleTimeoutMillis: 30000,
+  ...(DB_SSL ? { ssl: { rejectUnauthorized: false } } : {}),
 });
 
 const SCHEMA = `
