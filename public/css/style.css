@@ -23,35 +23,33 @@
   font-size: 0.8125rem;
 }
 
-/* Pin de sticker: imagen circular + cola de gota.
-   Se mantiene en px porque debe coincidir con el iconSize de Leaflet.
+/* Pin de sticker: mini-medalla flotante con cola triangular centrada.
+   Se mantiene en px porque debe coincidir con el iconSize de Leaflet (42x50).
    --pin-color se inyecta desde JS; por defecto un morado cálido. */
 .sticker-pin {
   position: relative;
-  width: 38px;
-  height: 46px;
+  width: 42px;
+  height: 42px;
   --pin-color: #a855f7;
 }
 .sticker-pin img {
-  position: absolute;
-  top: 0;
-  left: 1px;
-  width: 36px;
-  height: 36px;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
-  border: 3px solid var(--pin-color);
+  border: 3px solid var(--pin-color, #a855f7);
   object-fit: cover;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
-  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  background: #2e2232;
 }
 .sticker-pin::after {
   content: "";
   position: absolute;
-  left: 9px;
-  top: 30px;
-  border: 10px solid transparent;
-  border-top: 12px solid var(--pin-color);
-  border-bottom: 0;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 8px 6px 0 6px;
+  border-style: solid;
+  border-color: var(--pin-color, #a855f7) transparent transparent transparent;
 }
 .sticker-pin.selected::before {
   content: "";
@@ -70,10 +68,11 @@
 .ms-popup { width: 14rem; }
 .ms-popup img.ms-popup-img {
   width: 100%;
-  height: 8.25rem;
+  height: 10rem;
   object-fit: cover;
-  border-radius: 0.625rem;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 0.75rem;
+  display: block;
+  background-color: #2e2232; /* placeholder mientras carga */
 }
 .ms-popup .tag-chip {
   display: inline-block;

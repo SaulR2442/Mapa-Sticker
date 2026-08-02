@@ -112,9 +112,9 @@ function pinIcon(color, thumb) {
   return L.divIcon({
     className: 'sticker-pin-wrap',
     html: `<div class="sticker-pin" style="--pin-color:${color}">${thumb ? `<img src="${escapeHtml(thumb)}" alt="">` : ''}</div>`,
-    iconSize: [38, 46],
-    iconAnchor: [19, 44],
-    popupAnchor: [0, -42],
+    iconSize: [42, 50],
+    iconAnchor: [21, 50],
+    popupAnchor: [0, -50],
   });
 }
 
