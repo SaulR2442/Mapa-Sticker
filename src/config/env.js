@@ -12,6 +12,11 @@ const env = {
   DB_DRIVER: process.env.DB_DRIVER || 'sqlite',
   DATABASE_URL: process.env.DATABASE_URL || './data/mapa-sticker.db',
   DB_SSL: process.env.DB_SSL === 'true', // Supabase/Render: conexión cifrada
+  // Storage de imágenes: Supabase Storage (producción) con fallback a disco local (dev)
+  SUPABASE_STORAGE: process.env.SUPABASE_STORAGE === 'true',
+  SUPABASE_URL: process.env.SUPABASE_URL || '',
+  SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+  SUPABASE_STORAGE_BUCKET: process.env.SUPABASE_STORAGE_BUCKET || 'mapa-sticker',
   PUBLIC_DIR: path.resolve(process.cwd(), 'public'),
   UPLOAD_STICKERS_DIR: path.resolve(process.cwd(), 'public/uploads/stickers'),
   UPLOAD_AVATARS_DIR: path.resolve(process.cwd(), 'public/uploads/avatars'),

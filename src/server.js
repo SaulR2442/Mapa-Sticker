@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 
 const { initDb } = require('./db');
+const { migrateLocalImagesToSupabase } = require('./services/migrateImages');
 
 const app = express();
 
@@ -11,7 +12,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Archivos subidos y frontend estático
+// Archivos subidos y frontend estático.
+// /uploads expone explícitamente la carpeta de subidas (fallback local de
+// desarrollo; en producción las imágenes viven en Supabase Storage).
+app.use('/uploads', express.static(path.join(__dirname, '..', 'public', 'uploads')));
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // API
@@ -39,7 +43,10 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3000;
 
 initDb()
-  .then(() => {
+  .then(async () => {
+    await migrateLocalImagesToSupabase().catch((err) => {
+      console.error('[storage] Migracion de imagenes fallida:', err);
+    });
     app.listen(PORT, () => {
       console.log(`🗺️  Mapa Sticker corriendo en http://localhost:${PORT}`);
     });

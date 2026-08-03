@@ -47,6 +47,14 @@ const users = {
     return rows[0] || null;
   },
 
+  // Todos los usuarios (solo para migración de avatares a Supabase Storage)
+  async listAll() {
+    const { rows } = await pool.query(
+      `SELECT id, avatar FROM users`
+    );
+    return rows;
+  },
+
   async updateProfile(id, { displayName, bio, avatar, theme }) {
     const sets = [];
     const values = [];

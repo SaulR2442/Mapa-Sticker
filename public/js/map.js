@@ -1,6 +1,6 @@
 // Módulo del mapa: Leaflet + tiles CartoDB (claro/oscuro) + markers/rutas
 import { api } from './api.js';
-import { categoryMeta, escapeHtml, formatDate, timeAgo, avatarHtml, stickerImg, GRAFFITI_FALLBACK } from './utils.js';
+import { categoryMeta, escapeHtml, formatDate, timeAgo, avatarHtml, stickerImg, normalizeImageUrl, GRAFFITI_FALLBACK } from './utils.js';
 import { state } from './state.js';
 
 const TILES = {
@@ -122,7 +122,7 @@ function pinIcon(thumb, animate = false) {
   return L.divIcon({
     className: 'custom-sticker-marker',
     html: `<div class="sticker-pin${anim}">${thumb
-      ? `<img src="${escapeHtml(thumb)}" alt="" onerror="this.onerror=null;this.src='${GRAFFITI_FALLBACK}'">`
+      ? `<img src="${escapeHtml(normalizeImageUrl(thumb))}" alt="" onerror="this.onerror=null;this.src='${GRAFFITI_FALLBACK}'">`
       : ''}</div>`,
     iconSize: [36, 44],
     iconAnchor: [18, 44],

@@ -110,9 +110,18 @@ export const GRAFFITI_FALLBACK = 'data:image/svg+xml;utf8,' + encodeURIComponent
   <text x="150" y="148" text-anchor="middle" font-family="Arial Black, Impact, sans-serif" font-size="20" letter-spacing="3" fill="#e9d5ff">SIN IMAGEN</text>
 </svg>`);
 
+// Convierte cualquier URL de imagen guardada en BD a una URL web usable:
+// URLs http(s) y /ruta se usan tal cual; "ruta/relativa" se antepone con "/".
+export function normalizeImageUrl(value) {
+  if (!value) return '';
+  if (value.startsWith('http://') || value.startsWith('https://')) return value;
+  if (value.startsWith('/')) return value;
+  return `/${value}`;
+}
+
 // <img> con fallback automático: si la URL falla, muestra la textura grafiti
 export function stickerImg(sticker, cls = '') {
-  const src = sticker.image_url || sticker.imageUrl || sticker.foto || '';
+  const src = normalizeImageUrl(sticker.image_url || sticker.imageUrl || sticker.foto || '');
   const alt = sticker.title || '';
   return `<img class="${cls}" src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" loading="lazy" onerror="this.onerror=null;this.src='${GRAFFITI_FALLBACK}'">`;
 }
@@ -156,7 +165,7 @@ export function initials(name) {
 export function avatarHtml(user, cls = 'w-9 h-9 text-sm') {
   const name = user.display_name || user.username || '?';
   if (user.avatar) {
-    return `<img src="${escapeHtml(user.avatar)}" alt="" class="${cls} rounded-full object-cover border border-slate-300 dark:border-slate-700">`;
+    return `<img src="${escapeHtml(normalizeImageUrl(user.avatar))}" alt="" class="${cls} rounded-full object-cover border border-slate-300 dark:border-slate-700">`;
   }
   return `<div class="${cls} rounded-full flex items-center justify-center bg-gradient-to-br from-rose-400 to-violet-500 text-white font-bold select-none">${initials(name)}</div>`;
 }

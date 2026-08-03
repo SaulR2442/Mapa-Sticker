@@ -84,6 +84,19 @@ const stickers = {
     ).get(userId).n;
   },
 
+  // ID y URL de todos los stickers (migración de imágenes a Supabase Storage)
+  async listAll() {
+    return db.prepare(
+      `SELECT id, image_url FROM stickers`
+    ).all();
+  },
+
+  async updateImageUrl(id, imageUrl) {
+    return db.prepare(
+      `UPDATE stickers SET image_url = ? WHERE id = ?`
+    ).run(imageUrl, id);
+  },
+
   async remove(id, userId) {
     return db.prepare(
       `DELETE FROM stickers WHERE id = ? AND user_id = ?`

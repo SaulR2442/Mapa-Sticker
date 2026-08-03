@@ -1,5 +1,6 @@
 const { users, stickers, friends } = require('../db');
 const { serialize } = require('./auth.controller');
+const { uploadImage, deleteImage } = require('../services/storage');
 
 async function updateMe(req, res) {
   const { displayName, bio, theme } = req.body || {};
@@ -17,11 +18,20 @@ async function updateMe(req, res) {
     if (!['light', 'dark'].includes(theme)) return res.status(400).json({ error: 'Tema inválido' });
     patch.theme = theme;
   }
+
+  const previous = req.file ? await users.findById(req.userId) : null;
   if (req.file) {
-    patch.avatar = `/uploads/avatars/${req.file.filename}`;
+    const uploaded = await uploadImage(req.file, 'avatars');
+    patch.avatar = uploaded.url;
   }
 
   await users.updateProfile(req.userId, patch);
+
+  // Limpia el avatar anterior cuando se reemplaza
+  if (previous?.avatar && previous.avatar !== patch.avatar) {
+    await deleteImage(previous.avatar).catch(() => {});
+  }
+
   res.json({ user: serialize(await users.findById(req.userId)) });
 }
 

@@ -25,6 +25,18 @@ services:
       #   value: postgres
       # - key: DATABASE_URL
       #   value: postgresql://usuario:password@host.supabase.co:5432/postgres
+      #
+      # Storage de imagenes en Supabase Storage (evita perderlas con el disco
+      # efimero de Render). Crea un bucket publico "mapa-sticker" con politicas
+      # de lectura publica y de escritura para el service role (ver .env.example).
+      - key: SUPABASE_STORAGE
+        value: "true"
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_STORAGE_BUCKET
+        value: mapa-sticker
 
 # databases:
 #   - name: mapa-sticker-db

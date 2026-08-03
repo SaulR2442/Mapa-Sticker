@@ -38,6 +38,13 @@ const users = {
     ).get(username);
   },
 
+  // Todos los usuarios (solo para migración de avatares a Supabase Storage)
+  async listAll() {
+    return db.prepare(
+      `SELECT id, avatar FROM users`
+    ).all();
+  },
+
   async updateProfile(id, { displayName, bio, avatar, theme }) {
     const sets = [];
     const values = [];

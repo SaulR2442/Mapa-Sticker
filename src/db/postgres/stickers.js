@@ -93,6 +93,22 @@ const stickers = {
     return rows[0].n;
   },
 
+  // ID y URL de todos los stickers (migración de imágenes a Supabase Storage)
+  async listAll() {
+    const { rows } = await pool.query(
+      `SELECT id, image_url FROM stickers`
+    );
+    return rows;
+  },
+
+  async updateImageUrl(id, imageUrl) {
+    const { rowCount } = await pool.query(
+      `UPDATE stickers SET image_url = $1 WHERE id = $2`,
+      [imageUrl, id]
+    );
+    return { changes: rowCount };
+  },
+
   async remove(id, userId) {
     const { rowCount } = await pool.query(
       `DELETE FROM stickers WHERE id = $1 AND user_id = $2`,

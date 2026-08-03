@@ -1,22 +1,11 @@
-const fs = require('fs');
-const path = require('path');
 const multer = require('multer');
-const { UPLOAD_STICKERS_DIR, UPLOAD_AVATARS_DIR, MAX_FILE_SIZE } = require('../config/env');
+const { MAX_FILE_SIZE } = require('../config/env');
 
 const ALLOWED_EXT = /\.(jpe?g|png|gif|webp)$/i;
 
-function storageFor(dir) {
-  return multer.diskStorage({
-    destination(req, file, cb) {
-      fs.mkdirSync(dir, { recursive: true });
-      cb(null, dir);
-    },
-    filename(req, file, cb) {
-      const ext = (file.originalname.match(/\.(\w+)$/) || [, 'jpg'])[1].toLowerCase();
-      cb(null, `${Date.now()}_${Math.round(Math.random() * 1e6)}.${ext}`);
-    },
-  });
-}
+// Memoria en vez de disco: el archivo se guarda en Supabase Storage o disco
+// local en el controlador (servicio storage), con la extensión ya validada.
+const memoryStorage = multer.memoryStorage();
 
 function fileFilter(req, file, cb) {
   if (!ALLOWED_EXT.test(file.originalname)) {
@@ -25,18 +14,11 @@ function fileFilter(req, file, cb) {
   cb(null, true);
 }
 
-// Formularios multipart de la app: sticker con imagen + campos, o perfil con avatar
-const uploadSticker = multer({
-  storage: storageFor(UPLOAD_STICKERS_DIR),
-  fileFilter,
-  limits: { fileSize: MAX_FILE_SIZE },
-}).single('image');
+const base = multer({ storage: memoryStorage, fileFilter, limits: { fileSize: MAX_FILE_SIZE } });
 
-const uploadAvatar = multer({
-  storage: storageFor(UPLOAD_AVATARS_DIR),
-  fileFilter,
-  limits: { fileSize: MAX_FILE_SIZE },
-}).single('avatar');
+// Formularios multipart de la app: sticker con imagen + campos, o perfil con avatar
+const uploadSticker = base.single('image');
+const uploadAvatar = base.single('avatar');
 
 function wrap(middleware) {
   return (req, res, next) =>
@@ -46,10 +28,4 @@ function wrap(middleware) {
     });
 }
 
-// Convierte la URL pública del archivo subido
-function fileUrl(req, dir) {
-  const rel = path.relative(path.resolve(process.cwd(), 'public'), dir);
-  return `/${rel.split(path.sep).join('/')}/${req.file.filename}`;
-}
-
-module.exports = { uploadSticker: wrap(uploadSticker), uploadAvatar: wrap(uploadAvatar), fileUrl };
+module.exports = { uploadSticker: wrap(uploadSticker), uploadAvatar: wrap(uploadAvatar) };
