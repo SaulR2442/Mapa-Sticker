@@ -264,3 +264,50 @@ body { transition: background-color 0.25s ease, color 0.25s ease; }
   .ms-popup { width: 12.5rem; }
   .ms-popup img.ms-popup-img { height: 8rem; }
 }
+
+/* ===== Modal (mobile-first) ===== */
+.ms-modal-overlay {
+  padding: 0.5rem;
+  overflow-y: auto;
+}
+.ms-modal-panel {
+  width: 100%;
+  max-width: min(95vw, 32rem);
+  max-height: 92dvh;
+  margin: auto;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+/* Campos del formulario de subida: 100% de ancho sin desbordes */
+.ms-modal-panel input,
+.ms-modal-panel select,
+.ms-modal-panel textarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+/* Fila Categoría + Fecha: apilada en móvil, dos columnas desde sm */
+.ms-upload-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+@media (min-width: 40em) {
+  .ms-upload-grid { grid-template-columns: 1fr 1fr; }
+}
+/* Sección de ubicación: textos con espacio y sin colisiones en pantallas chicas */
+.ms-loc-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 0.625rem;
+}
+.ms-loc-coords {
+  width: 100%;
+  text-align: left;
+}
+@media (min-width: 40em) {
+  .ms-loc-coords { width: auto; text-align: right; }
+}

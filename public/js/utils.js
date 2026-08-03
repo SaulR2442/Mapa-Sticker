@@ -46,14 +46,15 @@ export async function compressImage(file, maxDim = 1280, quality = 0.82) {
   }
 }
 
-// Usa la ubicación del dispositivo como respaldo cuando la foto no trae GPS
-export function getCurrentLocation(timeoutMs = 4000) {
+// Usa la ubicación del dispositivo como respaldo cuando la foto no trae GPS.
+// enableHighAccuracy + timeout 10s: pide al navegador una posición GPS real.
+export function getCurrentLocation(timeoutMs = 10000) {
   return new Promise((resolve) => {
     if (!('geolocation' in navigator)) return resolve(null);
     navigator.geolocation.getCurrentPosition(
       (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
       () => resolve(null),
-      { timeout: timeoutMs, maximumAge: 60000, enableHighAccuracy: true }
+      { timeout: timeoutMs, maximumAge: 0, enableHighAccuracy: true }
     );
   });
 }

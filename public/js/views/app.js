@@ -414,10 +414,10 @@ document.addEventListener('keydown', (e) => {
 function openModal({ title, content, onMount }) {
   closeModal();
   const overlay = document.createElement('div');
-  overlay.className = 'fixed inset-0 z-[1500] flex items-center justify-center p-4';
+  overlay.className = 'ms-modal-overlay fixed inset-0 z-[1500] flex items-center justify-center bg-black/60 backdrop-blur-sm';
   overlay.innerHTML = `
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" data-close></div>
-    <div class="relative w-full max-w-lg max-h-[92vh] overflow-y-auto bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700">
+    <div class="ms-modal-panel relative w-full bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700">
       <div class="sticky top-0 z-10 flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
         <h2 class="text-lg font-bold">${title}</h2>
         <button data-close aria-label="Cerrar" class="w-11 h-11 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition">✕</button>
@@ -454,7 +454,7 @@ function openUploadModal() {
         </label>
       </div>
       <input id="upload-title" placeholder="Título del sticker *" class="w-full text-sm px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-      <div class="grid grid-cols-2 gap-3">
+      <div class="ms-upload-grid">
         <div>
           <label class="block text-xs font-semibold mb-1.5 opacity-70">Categoría</label>
           <select id="upload-category" class="w-full text-sm px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">${catOptions}</select>
@@ -470,12 +470,10 @@ function openUploadModal() {
       </div>
       <textarea id="upload-desc" rows="2" placeholder="Descripción (opcional)" class="w-full text-sm px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
       <div>
-        <div class="flex items-center justify-between mb-1.5">
-          <label class="text-xs font-semibold opacity-70">Ubicación en el mapa</label>
-          <span class="flex items-center gap-2">
-            <button id="upload-geoloc" type="button" class="text-[11px] font-bold text-indigo-500 hover:text-indigo-400 transition">📍 Usar mi ubicación</button>
-            <span id="upload-coords" class="text-[11px] font-mono opacity-60">haz clic para fijar 📍</span>
-          </span>
+        <label class="block text-xs font-semibold mb-1.5 opacity-70">Ubicación en el mapa</label>
+        <div class="ms-loc-row">
+          <button id="upload-geoloc" type="button" class="text-[11px] font-bold text-indigo-500 hover:text-indigo-400 transition">📍 Usar mi ubicación</button>
+          <span id="upload-coords" class="ms-loc-coords text-[11px] font-mono opacity-60">haz clic para fijar 📍</span>
         </div>
         <div id="picker-map" class="h-56 rounded-xl border border-slate-300 dark:border-slate-700 overflow-hidden"></div>
       </div>
@@ -485,9 +483,11 @@ function openUploadModal() {
       const fileInput = overlay.querySelector('#upload-file');
       const preview = overlay.querySelector('#upload-preview');
       const placeholder = overlay.querySelector('#upload-placeholder');
+
       const coordsEl = overlay.querySelector('#upload-coords');
       let picked = null;
       let uploadFile = null; // archivo final (comprimido)
+      let originalFile = null; // imagen ORIGINAL (conserva el EXIF/GPS)
       let picker = null;
 
       const setPicked = (lat, lng) => {
@@ -498,40 +498,51 @@ function openUploadModal() {
       };
       picker = map.createPickerMap('picker-map', currentTheme(), setPicked);
 
-      const tryGeolocation = async () => {
-        const pos = await getCurrentLocation();
+      // GPS real del navegador: pide permisos al usuario y sitúa el pin en el mapa
+      const tryGeolocation = async (silent = false) => {
+        const pos = await getCurrentLocation(10000);
         if (pos) {
           picker.setPoint(pos.lat, pos.lng);
-          toast('📍 Ubicación actual detectada', 'ok');
-        } else {
-          toast('No se pudo obtener la ubicación: fija el punto en el mapa', 'info');
+          if (!silent) toast('📍 Ubicación actual detectada', 'ok');
+          return true;
         }
+        if (!silent) toast('No se pudo obtener la ubicación: fija el punto en el mapa', 'info');
+        return false;
       };
-      overlay.querySelector('#upload-geoloc').addEventListener('click', tryGeolocation);
+
+      // EXIF GPS de la foto original (la compresión después lo eliminaría)
+      const applyExifGps = async () => {
+        if (!window.exifr || !originalFile) return false;
+        try {
+          const gps = await window.exifr.gps(originalFile);
+          if (gps && gps.latitude != null) {
+            picker.setPoint(gps.latitude, gps.longitude);
+            toast('📍 GPS encontrado en el EXIF de la foto', 'ok');
+            return true;
+          }
+        } catch { /* sin EXIF */ }
+        return false;
+      };
+
+      // Al abrir el modal pedimos permisos de GPS reales (dentro de la ventana
+      // de activación del gesto del usuario) y al pulsar el botón explícito
+      const geolocBtn = overlay.querySelector('#upload-geoloc');
+      geolocBtn.addEventListener('click', () => { tryGeolocation(false); });
+      setTimeout(() => { if (!picked) tryGeolocation(true); }, 400);
 
       fileInput.addEventListener('change', async () => {
         const original = fileInput.files[0];
         if (!original) return;
+        originalFile = original;
         placeholder.classList.add('hidden');
         preview.src = URL.createObjectURL(original);
         preview.classList.remove('hidden');
 
-        // 1) GPS desde EXIF de la imagen ORIGINAL (la compresión lo elimina)
-        let gpsFound = false;
-        if (window.exifr) {
-          try {
-            const gps = await window.exifr.gps(original);
-            if (gps && gps.latitude != null) {
-              picker.setPoint(gps.latitude, gps.longitude);
-              gpsFound = true;
-              toast('📍 GPS encontrado en el EXIF de la foto', 'ok');
-            }
-          } catch { /* sin EXIF */ }
-        }
-        // 2) Respaldo: ubicación actual del dispositivo
-        if (!gpsFound) tryGeolocation();
+        // GPS desde EXIF de la imagen ORIGINAL (la compresión lo elimina)
+        const gpsFound = await applyExifGps();
+        if (!gpsFound) tryGeolocation(true);
 
-        // 3) Compresión en el navegador (recorta peso y datos móviles)
+        // Compresión en el navegador (recorta peso y datos móviles)
         uploadFile = await compressImage(original);
         const kb = Math.round(uploadFile.size / 1024);
         if (uploadFile !== original) toast(`Imagen optimizada (${kb} KB)`, 'info');
@@ -542,6 +553,13 @@ function openUploadModal() {
         const title = overlay.querySelector('#upload-title').value.trim();
         if (!file) return toast('Toma o elige una imagen', 'error');
         if (!title) return toast('Escribe un título', 'error');
+
+        // Antes de enviar aseguramos coordenadas: EXIF > GPS del navegador > manual
+        if (!picked) {
+          const exifOk = await applyExifGps();
+          if (!exifOk) await tryGeolocation(true);
+        }
+        if (!picked) return toast('Fija la ubicación en el mapa o usa 📍 tu ubicación', 'error');
 
         const fd = new FormData();
         fd.append('image', file);
