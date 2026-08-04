@@ -1,3 +1,4 @@
+// Conexion PostgreSQL/Supabase y esquema con creacion automatica de tablas.
 const { Pool } = require('pg');
 const { DATABASE_URL, DB_SSL } = require('../../config/env');
 
@@ -8,6 +9,7 @@ const pool = new Pool({
   ...(DB_SSL ? { ssl: { rejectUnauthorized: false } } : {}),
 });
 
+// Tablas e indices (idempotente): se crean si no existen al arrancar.
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS users (
   id            BIGSERIAL PRIMARY KEY,
@@ -62,11 +64,41 @@ CREATE TABLE IF NOT EXISTS likes (
 CREATE INDEX IF NOT EXISTS idx_likes_sticker ON likes(sticker_id);
 `;
 
+// Reparaciones idempotentes para esquemas creados a mano (p. ej. desde el
+// dashboard de Supabase): columnas que pudieron faltar y, sobre todo, RLS.
+// Supabase activa Row Level Security por defecto en tablas creadas por UI,
+// lo que hace fallar los INSERT del backend con error 500.
+const HEAL = `
+ALTER TABLE users       ADD COLUMN IF NOT EXISTS avatar TEXT;
+ALTER TABLE users       ADD COLUMN IF NOT EXISTS bio TEXT NOT NULL DEFAULT '';
+ALTER TABLE users       ADD COLUMN IF NOT EXISTS theme TEXT NOT NULL DEFAULT 'light';
+ALTER TABLE stickers    ADD COLUMN IF NOT EXISTS description TEXT NOT NULL DEFAULT '';
+ALTER TABLE stickers    ADD COLUMN IF NOT EXISTS image_url TEXT NOT NULL DEFAULT '';
+ALTER TABLE stickers    ADD COLUMN IF NOT EXISTS category TEXT NOT NULL DEFAULT 'sin-categoria';
+ALTER TABLE stickers    ADD COLUMN IF NOT EXISTS tags TEXT NOT NULL DEFAULT '[]';
+ALTER TABLE stickers    ADD COLUMN IF NOT EXISTS lat DOUBLE PRECISION;
+ALTER TABLE stickers    ADD COLUMN IF NOT EXISTS lng DOUBLE PRECISION;
+ALTER TABLE stickers    ADD COLUMN IF NOT EXISTS taken_at TEXT;
+ALTER TABLE friendships ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'pending';
+ALTER TABLE users       DISABLE ROW LEVEL SECURITY;
+ALTER TABLE stickers    DISABLE ROW LEVEL SECURITY;
+ALTER TABLE friendships DISABLE ROW LEVEL SECURITY;
+ALTER TABLE likes       DISABLE ROW LEVEL SECURITY;
+`;
+
 let initialized = false;
 
 async function init() {
   if (initialized) return;
+  // Crear tablas/indices: si esto falla, el arranque falla con log claro.
   await pool.query(SCHEMA);
+  try {
+    await pool.query(HEAL);
+    console.log('[db] Esquema PostgreSQL verificado (tablas listas).');
+  } catch (err) {
+    // Las reparaciones son best-effort: no bloquean el arranque.
+    console.warn('[db] No se pudieron aplicar reparaciones de esquema:', err.message);
+  }
   initialized = true;
 }
 

@@ -240,6 +240,9 @@ body { transition: background-color 0.25s ease, color 0.25s ease; }
   padding-top: env(safe-area-inset-top);
 }
 .app-fab {
+  position: fixed;
+  right: 1rem;
+  z-index: 1000;
   bottom: calc(1.25rem + env(safe-area-inset-bottom));
 }
 #toast-root {

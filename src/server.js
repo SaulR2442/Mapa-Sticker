@@ -35,7 +35,10 @@ app.get('*', (req, res, next) => {
 
 // Error handler
 app.use((err, req, res, next) => {
-  console.error(`[${new Date().toISOString()}]`, err);
+  console.error(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} ->`, err);
+  if (err.code) {
+    console.error('[db] Detalle:', { code: err.code, detail: err.detail, hint: err.hint, constraint: err.constraint, table: err.table });
+  }
   if (res.headersSent) return next(err);
   res.status(err.status || 500).json({ error: 'Error interno del servidor' });
 });

@@ -27,7 +27,7 @@ export function renderShell() {
 function shellHTML() {
   return `
   <div class="h-screen flex flex-col">
-    <header class="app-header h-14 shrink-0 flex items-center gap-3 px-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm z-10">
+    <header class="app-header h-14 shrink-0 flex items-center gap-3 px-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm z-[1000]">
       <button id="btn-hamburger" aria-label="Abrir menú de filtros" class="md:hidden w-11 h-11 shrink-0 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-xl">☰</button>
       <div class="text-2xl">🗺️📌</div>
       <h1 class="font-black text-lg tracking-tight hidden sm:block">Mapa<span class="text-indigo-500">Sticker</span></h1>
@@ -108,7 +108,7 @@ function shellHTML() {
       <main class="relative flex-1 min-w-0">
         <div id="map-container" class="absolute inset-0"></div>
         <button id="btn-fab" aria-label="Subir sticker" title="Subir sticker"
-          class="app-fab md:hidden absolute bottom-5 right-4 z-[500] w-14 h-14 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-2xl shadow-xl shadow-indigo-600/40 flex items-center justify-center active:scale-90 transition">📌</button>
+          class="app-fab md:hidden fixed right-4 z-[1000] w-14 h-14 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-2xl shadow-xl shadow-indigo-600/40 flex items-center justify-center active:scale-90 transition">📌</button>
       </main>
     </div>
   </div>`;
@@ -404,6 +404,20 @@ export function closeModal() {
   currentModal?.remove();
   currentModal = null;
   modalClose();
+  // Reseteo completo tras cerrar cualquier modal: elimina restos, restaura el
+  // botón flotante de subir y la navegación por si quedaron ocultos o bloqueados.
+  document.querySelectorAll('.ms-modal-overlay').forEach((el) => el.remove());
+  const fab = document.getElementById('btn-fab');
+  if (fab) {
+    fab.classList.remove('hidden');
+    fab.style.pointerEvents = '';
+    fab.style.visibility = '';
+  }
+  const header = document.querySelector('.app-header');
+  if (header) {
+    header.style.pointerEvents = '';
+    header.style.visibility = '';
+  }
 }
 
 // Cerrar modales con Escape (buena práctica móvil/escritorio)

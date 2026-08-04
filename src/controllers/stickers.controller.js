@@ -53,8 +53,18 @@ async function create(req, res) {
       takenAt,
     });
   } catch (err) {
+    console.error('[POST /api/stickers] Error al insertar el sticker en la BD:', err);
+    if (err.code) {
+      console.error('[POST /api/stickers] Detalle pg:', {
+        code: err.code,
+        detail: err.detail,
+        hint: err.hint,
+        constraint: err.constraint,
+        table: err.table,
+      });
+    }
     await deleteImage(uploaded.url).catch(() => {});
-    throw err;
+    return res.status(500).json({ error: 'Error al guardar el sticker en la base de datos' });
   }
 
   res.status(201).json({ sticker: { ...sticker, category_meta: categoryMeta(category) } });
