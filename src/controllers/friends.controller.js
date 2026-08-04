@@ -1,4 +1,4 @@
-const { users, friends } = require('../db');
+const { users, friends, stickers } = require('../db');
 
 async function list(req, res) {
   res.json({
@@ -6,6 +6,25 @@ async function list(req, res) {
     incoming: await friends.listIncoming(req.userId),
     outgoing: await friends.listOutgoing(req.userId),
   });
+}
+
+// Stickers + ruta de TODOS los amigos aceptados (vista "Amigos" del mapa)
+async function mapFeed(req, res) {
+  const friendsList = await friends.listAccepted(req.userId);
+  const usersFeed = [];
+  for (const f of friendsList) {
+    // friend_id lo calcula la consulta (JOIN con users): evita confundirlo con f.id
+    const friendId = Number(f.friend_id);
+    usersFeed.push({
+      id: friendId,
+      username: f.username,
+      display_name: f.display_name,
+      avatar: f.avatar,
+      stickers: await stickers.listByUser(friendId, req.userId),
+      route: await stickers.routeByUser(friendId),
+    });
+  }
+  res.json({ users: usersFeed });
 }
 
 async function request(req, res) {
@@ -66,4 +85,4 @@ async function remove(req, res) {
   res.json({ ok: true });
 }
 
-module.exports = { list, request, respond, remove };
+module.exports = { list, mapFeed, request, respond, remove };

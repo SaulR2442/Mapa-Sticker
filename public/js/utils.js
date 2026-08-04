@@ -166,9 +166,9 @@ export function initials(name) {
 export function avatarHtml(user, cls = 'w-9 h-9 text-sm') {
   const name = user.display_name || user.username || '?';
   if (user.avatar) {
-    return `<img src="${escapeHtml(normalizeImageUrl(user.avatar))}" alt="" class="${cls} rounded-full object-cover border border-slate-300 dark:border-slate-700">`;
+    return `<img src="${escapeHtml(normalizeImageUrl(user.avatar))}" alt="" class="${cls} shrink-0 rounded-full object-cover border border-slate-300 dark:border-slate-700">`;
   }
-  return `<div class="${cls} rounded-full flex items-center justify-center bg-gradient-to-br from-rose-400 to-violet-500 text-white font-bold select-none">${initials(name)}</div>`;
+  return `<div class="${cls} shrink-0 rounded-full flex items-center justify-center bg-gradient-to-br from-rose-400 to-violet-500 text-white font-bold select-none">${initials(name)}</div>`;
 }
 
 export function toast(message, type = 'info') {

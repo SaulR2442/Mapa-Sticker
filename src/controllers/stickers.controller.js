@@ -1,4 +1,4 @@
-const { stickers, friends, likes } = require('../db');
+const { stickers, likes } = require('../db');
 const { extractGps } = require('../utils/exif');
 const { uploadImage, deleteImage } = require('../services/storage');
 const {
@@ -109,10 +109,11 @@ async function remove(req, res) {
   res.json({ ok: true });
 }
 
-// Vista global: mis stickers + los de mis amigos aceptados
+// Vista global: todos los stickers públicos de la plataforma
+// (se excluyen los perfiles privados; el usuario siempre ve los suyos)
 async function getGlobal(req, res) {
-  const usernames = [req.user.username, ...(await friends.acceptedUsernames(req.userId))];
-  res.json(await stickers.listByUsernames(usernames, req.userId));
+  const stickersList = await stickers.listPublic(req.userId);
+  res.json({ stickers: stickersList });
 }
 
 module.exports = { create, listMine, getOne, remove, getGlobal, toggleLike };

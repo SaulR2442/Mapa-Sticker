@@ -64,7 +64,7 @@ function shellHTML() {
             <h3 class="text-[11px] uppercase tracking-wider font-bold opacity-50 mb-2">Vista del mapa</h3>
             <div id="view-mode" class="grid grid-cols-3 gap-1 bg-slate-200 dark:bg-slate-800 rounded-xl p-1 text-xs font-semibold">
               <button data-mode="mine" class="mode-btn rounded-lg py-3 transition">Mi Mapa</button>
-              <button data-mode="friend" class="mode-btn rounded-lg py-3 transition">Amigo</button>
+              <button data-mode="friend" class="mode-btn rounded-lg py-3 transition">Amigos</button>
               <button data-mode="global" class="mode-btn rounded-lg py-3 transition">Global</button>
             </div>
             <div id="friend-picker" class="hidden mt-2">
@@ -205,10 +205,7 @@ function wireShell() {
         : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`;
     });
     document.getElementById('friend-picker').classList.toggle('hidden', state.mode !== 'friend');
-    if (state.mode === 'friend' && !state.friendUsername && state.friends.length) {
-      state.friendUsername = state.friends[0].username;
-      paintFriendSelect();
-    }
+    paintFriendSelect();
   }
   modeButtons.forEach((b) => b.addEventListener('click', () => {
     state.mode = b.dataset.mode;
@@ -283,12 +280,17 @@ function paintLegend() {
 
 function paintFriendSelect() {
   const select = document.getElementById('friend-select');
-  select.innerHTML = state.friends.length
-    ? state.friends.map((f) => `
-        <option value="${escapeHtml(f.username)}" ${f.username === state.friendUsername ? 'selected' : ''}>
-          ${escapeHtml(f.display_name)} (@${escapeHtml(f.username)})
-        </option>`).join('')
-    : '<option value="">No tienes amigos aún</option>';
+  const options = [{
+    value: '',
+    label: state.friends.length ? 'Todos los amigos' : 'No tienes amigos aún',
+  }, ...state.friends.map((f) => ({
+    value: f.username,
+    label: `${f.display_name} (@${f.username})`,
+  }))];
+  select.innerHTML = options.map((o) => `
+    <option value="${escapeHtml(o.value)}" ${o.value === state.friendUsername ? 'selected' : ''}>
+      ${escapeHtml(o.label)}
+    </option>`).join('');
 }
 
 function paintFriendList() {
@@ -298,8 +300,10 @@ function paintFriendList() {
         <li>
           <button data-view-friend="${escapeHtml(f.username)}" class="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition text-left">
             ${avatarHtml(f, 'w-8 h-8 text-[11px]')}
-            <span class="truncate font-medium">${escapeHtml(f.display_name)}</span>
-            <span class="opacity-50 text-xs">@${escapeHtml(f.username)}</span>
+            <span class="min-w-0 flex-1 block">
+              <span class="block truncate font-medium">${escapeHtml(f.display_name)}</span>
+              <span class="block truncate opacity-50 text-xs">@${escapeHtml(f.username)}</span>
+            </span>
           </button>
         </li>`).join('')
     : '<li class="text-xs opacity-50">Agrega amigos para ver sus mapas 👥</li>';
@@ -346,8 +350,11 @@ async function loadRanking() {
       <li class="flex items-center gap-2 ${u.is_me ? 'bg-indigo-50 dark:bg-indigo-500/10 rounded-lg px-1.5 py-0.5' : ''}">
         <span class="w-6 text-center shrink-0 text-xs">${MEDALS[i] || `${i + 1}.`}</span>
         ${avatarHtml(u, 'w-6 h-6 text-[9px]')}
-        <span class="truncate font-medium text-xs">${escapeHtml(u.display_name)}</span>
-        <span class="ml-auto text-xs tabular-nums" title="${u.total} stickers en total">
+        <span class="min-w-0 flex-1">
+          <span class="block truncate font-medium text-xs">${escapeHtml(u.display_name)}</span>
+          <span class="block truncate text-[10px] opacity-50">@${escapeHtml(u.username)}</span>
+        </span>
+        <span class="ml-auto shrink-0 text-xs tabular-nums" title="${u.total} stickers en total">
           <b>${u.total}</b>${u.streak >= 2 ? ` <span class="text-orange-500">🔥${u.streak}</span>` : ''}${u.this_week ? ` <span class="text-indigo-400">📅${u.this_week}</span>` : ''}
         </span>
       </li>`).join('');
@@ -365,28 +372,38 @@ async function loadScope() {
       me.sticker_count = b.sticker_count;
     } else if (state.mode === 'friend') {
       if (!state.friendUsername) {
-        map.renderScope({ users: [] });
-        return;
-      }
-      const b = await api.get(`/users/${encodeURIComponent(state.friendUsername)}/bundle`);
-      const idx = Math.max(0, state.friends.findIndex((f) => f.username === state.friendUsername));
-      users = [{ username: b.user.username, display_name: b.user.display_name, color: FRIEND_COLORS[idx % FRIEND_COLORS.length], stickers: b.stickers, route: b.route }];
-    } else {
-      const [myBundle, ...friendBundles] = await Promise.all([
-        api.get('/users/me/bundle'),
-        ...state.friends.map((f) => api.get(`/users/${encodeURIComponent(f.username)}/bundle`)),
-      ]);
-      me.sticker_count = myBundle.sticker_count;
-      users = [{ username: myBundle.user.username, display_name: myBundle.user.display_name, color: MY_COLOR, stickers: myBundle.stickers, route: myBundle.route }];
-      friendBundles.forEach((b, i) => {
-        users.push({
-          username: b.user.username,
-          display_name: b.user.display_name,
+        // Por defecto: stickers de TODOS los amigos aceptados
+        const feed = await api.get('/friends/map');
+        users = feed.users.map((f, i) => ({
+          username: f.username,
+          display_name: f.display_name,
           color: FRIEND_COLORS[i % FRIEND_COLORS.length],
-          stickers: b.stickers,
-          route: b.route,
-        });
-      });
+          stickers: f.stickers,
+          route: f.route,
+        }));
+      } else {
+        const b = await api.get(`/users/${encodeURIComponent(state.friendUsername)}/bundle`);
+        const idx = Math.max(0, state.friends.findIndex((f) => f.username === state.friendUsername));
+        users = [{ username: b.user.username, display_name: b.user.display_name, color: FRIEND_COLORS[idx % FRIEND_COLORS.length], stickers: b.stickers, route: b.route }];
+      }
+    } else {
+      // Global: todos los stickers públicos, agrupados por usuario para colorear
+      // las rutas. Los perfiles privados ya quedan excluidos en el servidor.
+      const { stickers } = await api.get('/stickers/global');
+      const byUser = new Map();
+      for (const s of stickers) {
+        let group = byUser.get(s.user_id);
+        if (!group) {
+          group = { username: s.username, display_name: s.display_name, stickers: [], route: [] };
+          byUser.set(s.user_id, group);
+        }
+        group.stickers.push(s);
+      }
+      let i = 0;
+      users = [...byUser.values()].map((g) => ({
+        ...g,
+        color: g.username === me.username ? MY_COLOR : FRIEND_COLORS[i++ % FRIEND_COLORS.length],
+      }));
     }
     paintChrome();
     map.renderScope({ users });
@@ -634,6 +651,12 @@ function openProfileModal() {
         <label class="block text-xs font-semibold mb-1.5 opacity-70">Biografía</label>
         <textarea id="profile-bio" rows="3" placeholder="Cuéntanos quién eres y qué stickers buscas…" class="w-full text-sm px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">${escapeHtml(user.bio || '')}</textarea>
       </div>
+      <label class="flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-3 cursor-pointer">
+        <input id="profile-private" type="checkbox" class="accent-violet-500 w-5 h-5 shrink-0" ${user.is_private ? 'checked' : ''}>
+        <span class="min-w-0 text-xs font-semibold leading-snug">🔒 Perfil Privado
+          <span class="block font-normal opacity-60">Ocultar mis stickers en el Mapa Global</span>
+        </span>
+      </label>
       <button id="profile-save" class="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-sm shadow-lg shadow-indigo-600/25 transition disabled:opacity-50">Guardar cambios</button>
     </div>`,
     onMount: (overlay) => {
@@ -650,6 +673,7 @@ function openProfileModal() {
         const fd = new FormData();
         fd.append('displayName', overlay.querySelector('#profile-name').value.trim());
         fd.append('bio', overlay.querySelector('#profile-bio').value.trim());
+        fd.append('is_private', overlay.querySelector('#profile-private').checked ? 'true' : 'false');
         if (newAvatar) fd.append('avatar', newAvatar);
         const btn = overlay.querySelector('#profile-save');
         btn.disabled = true;

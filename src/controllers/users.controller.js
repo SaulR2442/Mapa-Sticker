@@ -18,6 +18,14 @@ async function updateMe(req, res) {
     if (!['light', 'dark'].includes(theme)) return res.status(400).json({ error: 'Tema inválido' });
     patch.theme = theme;
   }
+  // is_private llega como 'true'/'false' (string) cuando el perfil se envía desde
+  // un FormData con avatar, y como booleano nativo en peticiones JSON.
+  if (req.body.is_private !== undefined) {
+    const raw = req.body.is_private;
+    if (typeof raw === 'boolean') patch.isPrivate = raw;
+    else if (raw === 'true' || raw === 'false') patch.isPrivate = raw === 'true';
+    else return res.status(400).json({ error: 'is_private debe ser booleano' });
+  }
 
   const previous = req.file ? await users.findById(req.userId) : null;
   if (req.file) {

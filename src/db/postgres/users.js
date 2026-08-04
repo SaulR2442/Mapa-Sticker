@@ -2,7 +2,7 @@
 const { pool } = require('./database');
 
 const PUBLIC_COLUMNS = `
-  id, username, display_name, avatar, bio, theme, created_at
+  id, username, display_name, avatar, bio, theme, is_private, created_at
 `;
 
 const users = {
@@ -55,7 +55,7 @@ const users = {
     return rows;
   },
 
-  async updateProfile(id, { displayName, bio, avatar, theme }) {
+  async updateProfile(id, { displayName, bio, avatar, theme, isPrivate }) {
     const sets = [];
     const values = [];
     let i = 1;
@@ -63,6 +63,7 @@ const users = {
     if (bio !== undefined) { sets.push(`bio = $${i++}`); values.push(bio); }
     if (avatar !== undefined) { sets.push(`avatar = $${i++}`); values.push(avatar); }
     if (theme !== undefined) { sets.push(`theme = $${i++}`); values.push(theme); }
+    if (isPrivate !== undefined) { sets.push(`is_private = $${i++}`); values.push(isPrivate); }
     if (!sets.length) return { changes: 0 };
     values.push(id);
     const { rowCount } = await pool.query(

@@ -57,6 +57,17 @@ const stickers = {
     ).all(viewerId, ...usernames).map(normalize);
   },
 
+  // Todos los stickers públicos de la plataforma (mapa Global): se excluyen los
+  // usuarios con perfil privado, pero el propio viewer siempre ve los suyos.
+  async listPublic(viewerId = null) {
+    return db.prepare(
+      `SELECT ${STICKER_COLUMNS} FROM stickers s
+       JOIN users u ON u.id = s.user_id
+       WHERE (u.is_private = 0 OR s.user_id = ?)
+       ORDER BY datetime(s.created_at) DESC`
+    ).all(viewerId, viewerId).map(normalize);
+  },
+
   // Puntos cronológicos (ordenados por fecha) para trazar la ruta del usuario
   async routeByUser(userId) {
     return db.prepare(

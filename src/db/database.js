@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS users (
   avatar        TEXT,
   bio           TEXT DEFAULT '',
   theme         TEXT DEFAULT 'light',
+  is_private    INTEGER NOT NULL DEFAULT 0,
   created_at    TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -68,5 +69,11 @@ CREATE INDEX IF NOT EXISTS idx_likes_sticker ON likes(sticker_id);
 `;
 
 db.exec(SCHEMA);
+
+// Migración idempotente para bases SQLite ya existentes (CREATE TABLE IF NOT
+// EXISTS no altera tablas creadas antes de esta columna)
+try {
+  db.exec(`ALTER TABLE users ADD COLUMN is_private INTEGER NOT NULL DEFAULT 0`);
+} catch { /* ya existe */ }
 
 module.exports = db;

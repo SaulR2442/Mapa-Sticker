@@ -4,6 +4,7 @@ const { auth } = require('../middleware/auth');
 const wrap = require('../utils/asyncHandler');
 
 router.get('/', auth, wrap(ctrl.list));
+router.get('/map', auth, wrap(ctrl.mapFeed));
 router.post('/request', auth, wrap(ctrl.request));
 router.post('/:id/:action', auth, wrap(ctrl.respond));
 router.delete('/:id', auth, wrap(ctrl.remove));

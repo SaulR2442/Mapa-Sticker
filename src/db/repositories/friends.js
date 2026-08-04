@@ -3,7 +3,7 @@ const db = require('../database');
 
 const FRIEND_COLUMNS = `
   f.id, f.requester_id, f.addressee_id, f.status, f.created_at,
-  u.username, u.display_name, u.avatar
+  u.id AS friend_id, u.username, u.display_name, u.avatar
 `;
 
 const friends = {

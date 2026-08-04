@@ -76,6 +76,19 @@ const stickers = {
     return rows.map(normalize);
   },
 
+  // Todos los stickers públicos de la plataforma (mapa Global): se excluyen los
+  // usuarios con perfil privado, pero el propio viewer siempre ve los suyos.
+  async listPublic(viewerId = null) {
+    const { rows } = await pool.query(
+      `SELECT ${STICKER_COLUMNS} FROM stickers s
+       JOIN users u ON u.id = s.user_id
+       WHERE u.is_private = FALSE OR s.user_id = $2
+       ORDER BY s.created_at DESC`,
+      [viewerId, viewerId]
+    );
+    return rows.map(normalize);
+  },
+
   // Puntos cronológicos (ordenados por fecha) para trazar la ruta del usuario
   async routeByUser(userId) {
     const { rows } = await pool.query(
