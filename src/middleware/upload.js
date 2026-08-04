@@ -8,8 +8,11 @@ const ALLOWED_EXT = /\.(jpe?g|png|gif|webp)$/i;
 const memoryStorage = multer.memoryStorage();
 
 function fileFilter(req, file, cb) {
-  if (!ALLOWED_EXT.test(file.originalname)) {
+  if (!file || !ALLOWED_EXT.test(file.originalname)) {
     return cb(new Error('Solo se permiten imágenes (jpg, png, gif, webp)'));
+  }
+  if (!/^image\//.test(file.mimetype || '')) {
+    return cb(new Error('El archivo debe ser una imagen (jpg, png, gif, webp)'));
   }
   cb(null, true);
 }

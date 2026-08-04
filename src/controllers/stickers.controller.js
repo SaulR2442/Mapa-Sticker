@@ -6,7 +6,9 @@ const {
 } = require('../utils/validation');
 
 async function create(req, res) {
-  if (!req.file) return res.status(400).json({ error: 'La imagen del sticker es obligatoria' });
+  if (!req.file || !req.file.size) {
+    return res.status(400).json({ error: 'La imagen del sticker es obligatoria' });
+  }
   const body = req.body || {};
 
   const title = String(body.title || '').trim().slice(0, 80);
@@ -37,10 +39,10 @@ async function create(req, res) {
   const description = String(body.description || '').slice(0, 1000);
 
   // Guarda la imagen (Supabase Storage o disco local) y obtén su URL web pública
-  const uploaded = await uploadImage(req.file, 'stickers');
-
+  let uploaded;
   let sticker;
   try {
+    uploaded = await uploadImage(req.file, 'stickers');
     sticker = await stickers.create({
       userId: req.userId,
       title,
@@ -53,7 +55,7 @@ async function create(req, res) {
       takenAt,
     });
   } catch (err) {
-    console.error('[POST /api/stickers] Error al insertar el sticker en la BD:', err);
+    console.error('[POST /api/stickers] Error al crear el sticker:', err);
     if (err.code) {
       console.error('[POST /api/stickers] Detalle pg:', {
         code: err.code,
@@ -63,8 +65,12 @@ async function create(req, res) {
         table: err.table,
       });
     }
-    await deleteImage(uploaded.url).catch(() => {});
-    return res.status(500).json({ error: 'Error al guardar el sticker en la base de datos' });
+    if (uploaded) await deleteImage(uploaded.url).catch(() => {});
+    const isDev = process.env.NODE_ENV !== 'production';
+    return res.status(500).json({
+      error: isDev ? err.message : 'Error interno del servidor',
+      ...(isDev ? { details: err.stack } : {}),
+    });
   }
 
   res.status(201).json({ sticker: { ...sticker, category_meta: categoryMeta(category) } });

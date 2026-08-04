@@ -21,10 +21,23 @@ function normalize(row) {
 
 const stickers = {
   async create({ userId, title, description, imageUrl, category, tags, lat, lng, takenAt }) {
+    // BIGSERIAL/BIGINT llega como string desde node-pg: forzar Number para
+    // los tipos numéricos y evitar fallos de cast en el INSERT.
+    const values = [
+      Number(userId),
+      String(title),
+      String(description || ''),
+      String(imageUrl),
+      String(category),
+      JSON.stringify(tags || []),
+      Number(lat),
+      Number(lng),
+      takenAt || null,
+    ];
     const { rows } = await pool.query(
       `INSERT INTO stickers (user_id, title, description, image_url, category, tags, lat, lng, taken_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
-      [userId, title, description, imageUrl, category, JSON.stringify(tags), lat, lng, takenAt || null]
+      values
     );
     return stickers.findById(rows[0].id, userId);
   },
